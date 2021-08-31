@@ -1,11 +1,17 @@
 import spacy
+import json
+import re
+import unidecode
 
-nlp = spacy.load("pt_core_news_sm")
+nlp = spacy.load("pt_core_news_lg")
+
+stopwords = nlp.Defaults.stop_words
+
 with open('text/source_text.txt', encoding='utf-8', mode="r") as f:
         text = f.read()
         f.close()
 
-text = text.replace("#","").upper()
+text = text.lower()
 doc = nlp(text)
 
 tokenized_suggestions = []
@@ -13,13 +19,15 @@ tokenized_suggestions = []
 doc_size = len(doc)
 
 for i in range(doc_size):
-
-    if doc[i].pos_ == "NOUN" or doc[i].pos_ == "PROPN":
-        if i-1 >= 0 and (doc[i-1].pos_ == "NOUN" or doc[i-1].pos_ == "PROPN"):
-            tokenized_suggestions.pop()
-            tokenized_suggestions.append(f"{doc[i-1].text} {doc[i].text}")
-        else:
-            tokenized_suggestions.append(doc[i].text)
+    token = doc[i]
+    if token.text not in stopwords:
+        if token.pos_ == "PROPN" or token.pos_ == "NOUN":
+            print(token.text + " " + token.pos_)
+            if i-1 >= 0 and (doc[i-1].pos_ == "NOUN" or doc[i-1].pos_ == "PROPN"):
+                tokenized_suggestions.pop()
+                tokenized_suggestions.append(f"{doc[i-1].text} {doc[i].text}")
+            else:
+                tokenized_suggestions.append(doc[i].text)
 
 print(tokenized_suggestions)
 
@@ -40,50 +48,43 @@ print(tokenized_suggestions_set)
 
 tokenized_suggestions_dictionaries = []
 
-minimum_occurrence = 99
-maximum_occurrence = 1
-
 for suggestion in tokenized_suggestions_set:
-    occurrence = tokenized_suggestions.count(suggestion)
-    if occurrence > maximum_occurrence:
-        maximum_occurrence = occurrence
-    if occurrence < minimum_occurrence:
-        minimum_occurrence = occurrence
+    occurrence = len(re.findall(suggestion, text, re.IGNORECASE)) 
+    suggestion_with_occurrence = {
+        "term": unidecode.unidecode(suggestion),
+        "occurrence": occurrence
+    }
+    tokenized_suggestions_dictionaries.append(suggestion_with_occurrence)
 
-for suggestion in tokenized_suggestions_set:
-    occurrence = tokenized_suggestions.count(suggestion)
-    if maximum_occurrence != minimum_occurrence and occurrence > minimum_occurrence:
-        suggestion_with_occurrence = {
-            "term": suggestion,
-            "occurrence": occurrence
-        }
-        tokenized_suggestions_dictionaries.append(suggestion_with_occurrence)
-
-tokenized_suggestions_dictionaries = sorted(tokenized_suggestions_dictionaries, key=lambda k: k['occurrence']) 
+tokenized_suggestions_dictionaries = sorted(tokenized_suggestions_dictionaries, key=lambda k: k['occurrence'], reverse=True) 
 print(tokenized_suggestions_dictionaries)
 
-entities_suggestions_set = list(set(entities_suggestions))
+with open('output/token_suggestions.json', 'w') as f:
+    json.dump(tokenized_suggestions_dictionaries, f)
 
-minimum_occurrence = 99
-maximum_occurrence = 1
+entities_suggestions_set = list(set(entities_suggestions))
 
 entities_suggestions_dictionaries = []
 
 for suggestion in entities_suggestions_set:
-    occurrence = entities_suggestions.count(suggestion)
-    if occurrence > maximum_occurrence:
-        maximum_occurrence = occurrence
-    if occurrence < minimum_occurrence:
-        minimum_occurrence = occurrence
+    occurence = len(re.findall(suggestion, text))
+    suggestion_with_occurrence = {
+        "term": unidecode.unidecode(suggestion),
+        "occurrence": occurrence
+    }
+    entities_suggestions_dictionaries.append(suggestion_with_occurrence)
 
-for suggestion in entities_suggestions_set:
-    occurrence = entities_suggestions.count(suggestion)
-    if maximum_occurrence != minimum_occurrence and occurrence > minimum_occurrence:
-        suggestion_with_occurrence = {
-            "term": suggestion,
-            "occurrence": occurrence
-        }
-        entities_suggestions_dictionaries.append(suggestion_with_occurrence)
+with open('output/entities_suggestions.json', 'w') as f:
+    json.dump(entities_suggestions_dictionaries, f)
 print ("")
 
 print(entities_suggestions_dictionaries)
+
+double_blind = []
+
+for token_suggestion in tokenized_suggestions_set:
+    for entities_suggestion in entities_suggestions_set:
+        if token_suggestion in entities_suggestion:
+           double_blind.append(token_suggestion)
+
+print(set(double_blind))
