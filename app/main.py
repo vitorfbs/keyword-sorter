@@ -1,39 +1,81 @@
-import unidecode
-from collections import Counter
+import json
+
+from filter_model import FilterModel
+from semantic_model import SemanticModel
+
+filter_model = FilterModel()
+semantic_model = SemanticModel()
+
+filter_model.main()
+semantic_model.main()
+
+with open('output/cross_suggestions.json') as json_file:
+    cross_suggestions = json.load(json_file)
+
+with open('output/entities_suggestions.json') as json_file:
+    entities_suggestions = json.load(json_file)
+
+with open('output/token_suggestions.json') as json_file:
+    token_suggestions = json.load(json_file)
+
+with open('output/filter_suggestions.json') as json_file:
+    filter_suggestions = json.load(json_file)
+
+junction_suggestions = []
 
 
-def open_source_text():
-    #with open('source_text.txt', encoding='utf-8', mode="r") as f: https://www.geeksforgeeks.org/python-find-most-frequent-element-in-a-list/
-    with open("text/source_text.txt", encoding='utf-8', mode="r") as file:
-        text = file.read()
-        file.close()
-    return text
+for filter_suggestion in filter_suggestions:
+    occurrence_increment = 0
+    for token_suggestion in token_suggestions:
+        if filter_suggestion["term"] in token_suggestion["term"]:
+            occurrence_increment = occurrence_increment + 1
+    for entity_suggestion in entities_suggestions:
+        if filter_suggestion["term"] in token_suggestion["term"]:
+            occurrence_increment = occurrence_increment + 1
+    print(f"{filter_suggestion} : {occurrence_increment}")
+    if occurrence_increment > 0:
+        junction_suggestion = {
+            "term": filter_suggestion["term"],
+            "occurrence": filter_suggestion["occurrence"] + occurrence_increment
+        }
+        junction_suggestions.append(junction_suggestion)
 
-def generate_terms(text):
-    decoded_text = unidecode.unidecode(text)
-    return decoded_text.lower().split(" ")
+print(junction_suggestions)
 
-def remove_words_connections_from_terms(terms):
-    terms_without_connections_list = []
-    words_to_remove = ["como","que","esta", "foi", "com","se","para","o","os","a","as","um","uns","uma","umas","a","ao","aos","de","do","dos","da","das","dum","duns","duma","dumas","em","no","nos","na","nas","num","nuns","numa","numas","por","per","pelo","pelos","pela","pelas","e","ou","entao","senao"]
-    
-    for term in terms:
-        if term not in words_to_remove:
-            terms_without_connections_list.append(term)
-    return terms_without_connections_list
+with open('output/junction_suggestions.json', 'w') as f:
+            json.dump(junction_suggestions, f)
 
-def get_most_common_words(terms_without_connections):
+with open('output/report.txt', 'w') as report:
+            report.write("RELATÓRIO DE TAGS SUGERIDAS PARA O TEXTO")
+            report.write("\n")
+            report.write("----------------------------------------")
+            
+            report.write("\n\n")
+            report.write("Sugestões do modelo de Junção (Semântico de Entidades e Tokenizado + Filtro): \n")
+            for suggestion in junction_suggestions:
+                term = suggestion["term"]
+                report.write(f"- {term} \n")
+            
+            report.write("\n\n")
+            report.write("Sugestões do modelo de Cruzamento (Semântico de Entidades e Tokenizado): \n")
+            for suggestion in cross_suggestions:
+                term = suggestion["term"]
+                report.write(f"- {term} \n")
+            
+            report.write("\n\n")
+            report.write("Sugestões do modelo de Entidades (Semântico de Entidades): \n")
+            for suggestion in entities_suggestions:
+                term = suggestion["term"]
+                report.write(f"- {term} \n")
 
-    counter = Counter(terms_without_connections)
-    ocurrences_number = Counter(terms_without_connections).most_common(1)[0][1]
-    
-    most_occur = counter.most_common(ocurrences_number)
+            report.write("\n\n")
+            report.write("Sugestões do modelo de Tokens (Semântico Tokenizado): \n")
+            for suggestion in token_suggestions:
+                term = suggestion["term"]
+                report.write(f"- {term} \n")
 
-    return most_occur;        
-
-text = open_source_text()
-terms = generate_terms(text)
-terms_without_connections = remove_words_connections_from_terms(terms)
-most_commun_ocurrences = get_most_common_words(terms_without_connections)
-
-print(most_commun_ocurrences)
+            report.write("\n\n")
+            report.write("Sugestões do modelo de Filtro: \n")
+            for suggestion in filter_suggestions:
+                term = suggestion["term"]
+                report.write(f"- {term} \n")
