@@ -32,7 +32,6 @@ for filter_suggestion in filter_suggestions:
     for entity_suggestion in entities_suggestions:
         if filter_suggestion["term"] in token_suggestion["term"]:
             occurrence_increment = occurrence_increment + 1
-    print(f"{filter_suggestion} : {occurrence_increment}")
     if occurrence_increment > 0:
         junction_suggestion = {
             "term": filter_suggestion["term"],
@@ -40,7 +39,6 @@ for filter_suggestion in filter_suggestions:
         }
         junction_suggestions.append(junction_suggestion)
 
-print(junction_suggestions)
 
 with open('output/junction_suggestions.json', 'w') as f:
             json.dump(junction_suggestions, f)
@@ -79,3 +77,7 @@ with open('output/report.txt', 'w') as report:
             for suggestion in filter_suggestions:
                 term = suggestion["term"]
                 report.write(f"- {term} \n")
+
+            report.close()
+
+print("Resultado disponível em output/report.txt")
