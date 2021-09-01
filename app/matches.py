@@ -1,3 +1,0 @@
-prepositions = ["DE","DA","DO","DOS","DAS","A","ANTE","APOS","ATE","COM","CONTRA","DESDE","EM","ENTRE","PARA","PERANTE","POR","SEM","SOB","SOBRE","TRAS"]
-articles = ["O","OS","A","AS","UM","UNS","UMA","UMAS","A","AO","AOS","DE","DO","DOS","DA","DAS","DUM","DUNS","DUMA","DUMAS","EM","NO","NOS","NA","NAS","NUM","NUNS","NUMA","NUMAS","POR","PER","PELO","PELOS","PELA","PELAS","E","OU","ENTAO","SENAO"]
-pronouns = ["EU","ME","MIM","COMIGO","TU","VOCE","TE","TI","CONTIGO","ELE","ELA","O","A","LHE","SE","SI","CONSIGO","NOS","NOS","CONOSCO","VOS","VOCES","VOS","CONVOSCO","ELES","ELAS","OS","AS","LHES","SE","SI","CONSIGO"]

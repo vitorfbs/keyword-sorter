@@ -4,7 +4,7 @@ from collections import Counter
 
 def open_source_text():
     #with open('source_text.txt', encoding='utf-8', mode="r") as f: https://www.geeksforgeeks.org/python-find-most-frequent-element-in-a-list/
-    with open("/Users/regisdarosa/PycharmProjects/keyword-sorter/app/text/source_text.txt", encoding='utf-8', mode="r") as file:
+    with open("text/source_text.txt", encoding='utf-8', mode="r") as file:
         text = file.read()
         file.close()
     return text
