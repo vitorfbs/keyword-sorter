@@ -114,6 +114,3 @@ class SemanticModel:
         tokenized_suggestions_set = self.generate_entities_suggestions_json(tokenized_suggestions)
         entities_suggestions_set = self.generate_tokenized_suggestions_json(entities_suggestions)
         self.generate_cross_suggestions_json(tokenized_suggestions_set, entities_suggestions_set)
-
-model = SemanticModel()
-model.main()
