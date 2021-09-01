@@ -15,6 +15,7 @@ class SemanticModel:
             text = f.read()
             f.close()
    
+        text = re.sub(r'[^\w\s]','', text)
         return unidecode.unidecode(text.lower())
 
     def process_text(self):
