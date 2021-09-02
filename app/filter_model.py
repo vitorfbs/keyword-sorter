@@ -20,7 +20,8 @@ class FilterModel():
 
         for term in terms:
             term = re.sub(r'[^\w\s]','', term)
-            if term not in words_to_remove:
+            term = re.sub(" \d+", " ", term)
+            if term not in words_to_remove and term != "":
                 terms_without_connections_list.append(term)
         return terms_without_connections_list
 

@@ -16,6 +16,7 @@ class SemanticModel:
             f.close()
    
         text = re.sub(r'[^\w\s]','', text)
+        text = re.sub(" \d+", " ", text)
         return unidecode.unidecode(text.lower())
 
     def process_text(self):
@@ -28,7 +29,7 @@ class SemanticModel:
 
         for i in range(doc_size):
             token = doc[i]
-            if token.text not in self.stopwords:
+            if token.text not in self.stopwords and token.text != "":
                 if token.pos_ == "PROPN" or token.pos_ == "NOUN":
                     if i-1 >= 0 and (doc[i-1].pos_ == "NOUN" or doc[i-1].pos_ == "PROPN"):
                         tokenized_suggestions.pop()
